@@ -25,9 +25,20 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
-
         parent::boot();
+
+        Route::bind('client', function ($id) {
+
+            $model = Client::withTrashed()->whereId($id)->first();
+
+            if (!$model) {
+                return response('The requested model was not found', HTTPStatus::Not_Found);
+            } elseif ($model->deleted_at) {
+                return response('The requested model does no longer exist', HTTPStatus::Gone);
+            } else {
+                return $model;
+            }
+        });
     }
 
     /**

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\HTTPStatus;
 use App\Client;
+use App\Http\Requests\DeleteClient;
+use App\Http\Requests\UpdateClient;
 use App\Http\Requests\CreateClient;
 use App\Http\Requests\IndexClient;
 use Illuminate\Http\Request;
@@ -58,23 +60,30 @@ class ClientController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Client  $client
+     * @param  App\Http\UpdateClient    $request
+     * @param  \App\Client              $client
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Client $client)
+    public function update(UpdateClient $request, Client $client)
     {
-        //
+        $client->update($request->only(app('App\Client')->fillable));
+            
+        return response()->json(
+            $client->toArray()
+        );
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Client  $client
-     * @return \Illuminate\Http\Response
+     * @param   App\Http\Requests\DeleteClient
+     * @param   \App\Client  $client
+     * @return  \Illuminate\Http\Response
      */
-    public function destroy(Client $client)
+    public function destroy(DeleteClient $request, Client $client)
     {
-        //
+        $client->delete();
+
+        return response('', HTTPStatus::No_Content);
     }
 }
