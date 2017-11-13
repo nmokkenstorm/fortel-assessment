@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Client;
+use App\HTTPStatus;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 

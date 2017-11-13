@@ -16,4 +16,9 @@ class Client extends Model
      */
     protected $guarded = ['id', 'created_at', 'updated_at', 'deleted_at'];
 
+    /**
+     * Do things a bit memory safe in pagination
+     */
+    const MAX_PER_PAGE = 50;
+
 }

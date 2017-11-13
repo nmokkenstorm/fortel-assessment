@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\HTTPStatus;
 use App\Client;
 use App\Http\Requests\CreateClient;
+use App\Http\Requests\IndexClient;
 use Illuminate\Http\Request;
 
 class ClientController extends Controller
@@ -13,19 +15,9 @@ class ClientController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(IndexClient $request)
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        return Client::paginate($request->input('limit', Client::MAX_PER_PAGE));
     }
 
     /**
@@ -36,7 +28,7 @@ class ClientController extends Controller
      */
     public function store(CreateClient $request)
     {
-        return Client::create($request->only(app('App\Client')->fillable));
+        return response()->json(Client::create($request->only(app('App\Client')->fillable))->toArray(), 201);
     }
 
     /**
@@ -58,7 +50,7 @@ class ClientController extends Controller
      */
     public function edit(Client $client)
     {
-        return response(HTTPStatus::METHOD_NOT_ALLOWED)->json([
+        return response(HTTPStatus::Method_Not_Allowed)->json([
             'message'   => __('http_status.method_not_allowed')
         ]);
     }
