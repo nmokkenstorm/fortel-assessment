@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 
 use App\HTTPStatus;
 use App\Client;
-use App\Http\Requests\DeleteClient;
-use App\Http\Requests\UpdateClient;
-use App\Http\Requests\CreateClient;
-use App\Http\Requests\IndexClient;
+use App\Http\Requests\Client\Create;
+use App\Http\Requests\Client\Index;
+use App\Http\Requests\Client\Update;
+use App\Http\Requests\Client\Delete;
+
 use Illuminate\Http\Request;
 
 class ClientController extends Controller
@@ -15,9 +16,10 @@ class ClientController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @param   \App\Http\Requests\Client\Index
+     * @return  \Illuminate\Http\Response
      */
-    public function index(IndexClient $request)
+    public function index(Index $request)
     {
         return Client::paginate($request->input('limit', Client::MAX_PER_PAGE));
     }
@@ -25,12 +27,16 @@ class ClientController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  App\Http\Requests\CreateClient $request
+     * @param  \App\Http\Requests\Client\Create $request
      * @return \Illuminate\Http\Response
      */
-    public function store(CreateClient $request)
+    public function store(Create $request)
     {
-        return response()->json(Client::create($request->only(app('App\Client')->fillable))->toArray(), 201);
+        return response()->json(
+                Client::create($request->only(app('App\Client')->fillable))
+                ->toArray(),
+            201
+        );
     }
 
     /**
@@ -52,7 +58,7 @@ class ClientController extends Controller
      */
     public function edit(Client $client)
     {
-        return response(HTTPStatus::Method_Not_Allowed)->json([
+        return response(HTTPStatus::METHOD_NOT_ALLOWED)->json([
             'message'   => __('http_status.method_not_allowed')
         ]);
     }
@@ -60,30 +66,36 @@ class ClientController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  App\Http\UpdateClient    $request
-     * @param  \App\Client              $client
+     * @param  \App\Http\Requests\Client\Update $request
+     * @param  \App\Client                      $client
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateClient $request, Client $client)
+    public function update(Update $request, Client $client)
     {
         $client->update($request->only(app('App\Client')->fillable));
-            
+
         return response()->json(
-            $client->toArray()
+                $client->toArray(),
+            200
         );
     }
 
-    /**
+   /**
      * Remove the specified resource from storage.
      *
-     * @param   App\Http\Requests\DeleteClient
-     * @param   \App\Client  $client
-     * @return  \Illuminate\Http\Response
+     * @param  \App\Client  $client
+     * @return \Illuminate\Http\Response
      */
-    public function destroy(DeleteClient $request, Client $client)
+    public function destroy(Client $client)
     {
         $client->delete();
+        
+        // we could probably do transactions or observers here
+        $client->contacts()->each(function ($contact) {
+            $contact->delete();
+        });
 
-        return response('', HTTPStatus::No_Content);
+        return response('', 204);
+    
     }
 }
