@@ -21,4 +21,14 @@ class Client extends Model
      */
     const MAX_PER_PAGE = 50;
 
+    /**
+     * Get the comments for the blog post.
+     *
+	 * @return Illuminate\Database\Eloquent\Relations\HasMany
+	 */
+    public function contacts()
+    {
+        return $this->hasMany('App\Contact');
+    } 
+
 }
